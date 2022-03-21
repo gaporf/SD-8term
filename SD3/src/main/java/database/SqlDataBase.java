@@ -46,8 +46,20 @@ public class SqlDataBase {
 
     private boolean containsMembershipEvent(final DataBaseMembershipEvent membershipEvent) {
         return querySQL("select * from MembershipEvents" +
-                " where MembershipEvents.eventId = " + membershipEvent.getEventId() +
-                " and MembershipEvents.membershipId = " + membershipEvent.getMembershipId(), rs -> {
+                "            where MembershipEvents.eventId = " + membershipEvent.getEventId() +
+                "            and MembershipEvents.membershipId = " + membershipEvent.getMembershipId(), rs -> {
+            try {
+                return rs.next();
+            } catch (final SQLException ignored) {
+                return false;
+            }
+        });
+    }
+
+    private boolean containsTurnstileEvent(final DataBaseTurnstileEvent turnstileEvent) {
+        return querySQL("select * from TurnstileEvents where" +
+                "            TurnstileEvents.membershipId = " + turnstileEvent.getMembershipId() +
+                "            and TurnstileEvents.eventId = " + turnstileEvent.getEventId(), rs -> {
             try {
                 return rs.next();
             } catch (final SQLException ignored) {
@@ -87,7 +99,7 @@ public class SqlDataBase {
                 "  (eventId integer not null," +
                 "   membershipId integer not null," +
                 "   event text not null," +
-                "   eventTime integer not null," +
+                "   addedTime integer not null," +
                 "   primary key (eventId, membershipId))");
     }
 
@@ -136,6 +148,36 @@ public class SqlDataBase {
                 try {
                     while (rs.next()) {
                         events.add(new DataBaseMembershipEvent(rs.getInt("eventId"), rs.getInt("membershipId"), rs.getInt("validTill"), rs.getInt("addedTime")));
+                    }
+                } catch (final SQLException e) {
+                    throw new SqlDataBaseException("Can't extract events from database", e);
+                }
+                return events;
+            });
+        }
+    }
+
+    public void addTurnstileEvent(final DataBaseTurnstileEvent turnstileEvent) {
+        if (!containsMembership(turnstileEvent.getMembershipId())) {
+            throw new SqlDataBaseException("Can't find membership with id = " + turnstileEvent.getMembershipId());
+        } else if (containsTurnstileEvent(turnstileEvent)) {
+            throw new SqlDataBaseException("Turnstile event with id = " + turnstileEvent.getEventId() + " and for membership with id = " + turnstileEvent.getMembershipId() + " has already been added");
+        } else {
+            updateSQL("insert into TurnstileEvents " +
+                    "  (eventId, membershipId, event, addedTime) values " +
+                    "  (" + turnstileEvent.getEventId() + ", " + turnstileEvent.getMembershipId() + ", '" + turnstileEvent.getEvent().toString() + "', " + turnstileEvent.getAddedTime() + ")");
+        }
+    }
+
+    public List<DataBaseTurnstileEvent> getTurnstileEvents(final int membershipId) {
+        if (!containsMembership(membershipId)) {
+            throw new SqlDataBaseException("Can't find membership with id = " + membershipId);
+        } else {
+            return querySQL("select * from TurnstileEvents where TurnstileEvents.membershipId = " + membershipId, rs -> {
+                final List<DataBaseTurnstileEvent> events = new ArrayList<>();
+                try {
+                    while (rs.next()) {
+                        events.add(new DataBaseTurnstileEvent(rs.getInt("eventId"), rs.getInt("membershipId"), TurnstileEvent.valueOf(rs.getString("event")), rs.getInt("addedTime")));
                     }
                 } catch (final SQLException e) {
                     throw new SqlDataBaseException("Can't extract events from database", e);

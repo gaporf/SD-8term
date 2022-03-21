@@ -20,6 +20,8 @@ public class Main {
         httpServer.createContext("/register_membership", new EventsRegisterMembership(eventsConfig, database));
         httpServer.createContext("/renew_membership", new EventsRenewMembership(eventsConfig, database));
         httpServer.createContext("/get_membership_events", new EventsGetMembershipEvents(eventsConfig, database));
+        httpServer.createContext("/new_turnstile_event", new EventsNewTurnstileEvent(eventsConfig, database));
+        httpServer.createContext("/get_turnstile_events", new EventsGetTurnstileEvents(eventsConfig, database));
         httpServer.setExecutor(null);
         httpServer.start();
     }
