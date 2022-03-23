@@ -15,10 +15,12 @@ import java.util.Map;
 
 public class EventsRegisterMembership implements HttpHandler {
     private final ServerConfig eventsConfig;
+    private final ServerConfig reportConfig;
     private final SqlDataBase database;
 
-    public EventsRegisterMembership(final ServerConfig eventsConfig, final SqlDataBase database) {
+    public EventsRegisterMembership(final ServerConfig eventsConfig, final ServerConfig reportConfig, final SqlDataBase database) {
         this.eventsConfig = eventsConfig;
+        this.reportConfig = reportConfig;
         this.database = database;
     }
 
@@ -43,6 +45,7 @@ public class EventsRegisterMembership implements HttpHandler {
             final String membershipName = queryParameters.get("membership_name");
             try {
                 database.addMembership(new DataBaseMembership(membershipId, membershipName));
+                ServerUtils.readAsText("http://localhost:" + reportConfig.getPort() + "/add_membership?password=" + reportConfig.getPassword() + "&membership_id=" + membershipId + "&name=" + membershipName);
                 response = "Membership with id = " + membershipId + " was added";
             } catch (final Exception e) {
                 response = "Can't add membership: " + e.getMessage();

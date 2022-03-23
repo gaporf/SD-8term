@@ -16,10 +16,12 @@ import java.util.Map;
 
 public class EventsNewTurnstileEvent implements HttpHandler {
     private final ServerConfig eventsConfig;
+    private final ServerConfig reportConfig;
     private final SqlDataBase database;
 
-    public EventsNewTurnstileEvent(final ServerConfig eventsConfig, final SqlDataBase database) {
+    public EventsNewTurnstileEvent(final ServerConfig eventsConfig, final ServerConfig reportConfig, final SqlDataBase database) {
         this.eventsConfig = eventsConfig;
+        this.reportConfig = reportConfig;
         this.database = database;
     }
 
@@ -44,7 +46,9 @@ public class EventsNewTurnstileEvent implements HttpHandler {
             int eventId = ServerUtils.parseInt(queryParameters.get("event_id"));
             final String turnstileEvent = queryParameters.get("turnstile_event");
             try {
-                database.addTurnstileEvent(new DataBaseTurnstileEvent(eventId, membershipId, TurnstileEvent.valueOf(turnstileEvent.toUpperCase())));
+                final int curTime = (int) (System.currentTimeMillis() / 1000);
+                database.addTurnstileEvent(new DataBaseTurnstileEvent(eventId, membershipId, TurnstileEvent.valueOf(turnstileEvent.toUpperCase()), curTime));
+                ServerUtils.readAsText("http://localhost:" + reportConfig.getPort() + "/" + turnstileEvent.toLowerCase() + "?password=" + reportConfig.getPassword() + "&membership_id=" + membershipId + "&time_in_seconds=" + curTime);
                 response = "Turnstile event with id = " + eventId + " for membership with id = " + membershipId + " was added";
             } catch (final Exception e) {
                 response = e.getMessage();

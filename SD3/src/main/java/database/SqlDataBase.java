@@ -139,6 +139,20 @@ public class SqlDataBase {
         }
     }
 
+    public List<DataBaseMembership> getMemberships() {
+        return querySQL("select * from Memberships", rs -> {
+            final List<DataBaseMembership> memberships = new ArrayList<>();
+            try {
+                while (rs.next()) {
+                    memberships.add(new DataBaseMembership(rs.getInt("id"), rs.getString("name"), rs.getInt("addedTime")));
+                }
+            } catch (final SQLException e) {
+                throw new SqlDataBaseException("Can't extract memberships from database", e);
+            }
+            return memberships;
+        });
+    }
+
     public List<DataBaseMembershipEvent> getMembershipsEvents(final int membershipId) {
         if (!containsMembership(membershipId)) {
             throw new SqlDataBaseException("Can't find membership with id = " + membershipId);
