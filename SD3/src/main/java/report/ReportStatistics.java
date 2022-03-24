@@ -8,6 +8,7 @@ import server.ServerUtils;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 public class ReportStatistics implements HttpHandler {
@@ -20,15 +21,10 @@ public class ReportStatistics implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         final OutputStream outputStream = exchange.getResponseBody();
-        final String queryString = exchange.getRequestURI().getQuery();
         int returnCode;
         String response;
-        final Map<String, String> queryParameters;
         try {
-            queryParameters = ServerUtils.getMapQuery(queryString);
-            if (queryParameters.keySet().size() != 1 || !queryParameters.containsKey("membership_id")) {
-                throw new ManagerException("Requested pattern is /get_statistics?membership_id=<membership_id>");
-            }
+            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("membership_id"));
             int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
             response = reportLocalStorage.getStatistics(membershipId);
             returnCode = 200;

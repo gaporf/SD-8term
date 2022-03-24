@@ -22,7 +22,7 @@ public class Main {
         httpServer.createContext("/get_statistics", new ReportStatistics(reportLocalStorage));
         httpServer.createContext("/enter", new ReportEnter(reportConfig, reportLocalStorage));
         httpServer.createContext("/exit", new ReportExit(reportConfig, reportLocalStorage));
-        httpServer.createContext("/add_membership", new ReportAddMembership(reportConfig, reportLocalStorage));
+        httpServer.createContext("/add_membership", new AddMembership(reportConfig, reportLocalStorage));
         httpServer.setExecutor(null);
         httpServer.start();
     }

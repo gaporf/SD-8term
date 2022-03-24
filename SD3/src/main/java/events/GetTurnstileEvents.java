@@ -2,8 +2,9 @@ package events;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import database.*;
-import manager.ManagerException;
+import database.Database;
+import database.Membership;
+import database.TurnstileEvent;
 import server.ServerConfig;
 import server.ServerUtils;
 
@@ -13,41 +14,37 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-public class EventsGetTurnstileEvents implements HttpHandler {
+public class GetTurnstileEvents implements HttpHandler {
     private final ServerConfig eventsConfig;
-    private final SqlDataBase database;
+    private final Database database;
 
-    public EventsGetTurnstileEvents(final ServerConfig eventsConfig, final SqlDataBase database) {
+    public GetTurnstileEvents(final ServerConfig eventsConfig, final Database database) {
         this.eventsConfig = eventsConfig;
         this.database = database;
     }
 
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(final HttpExchange exchange) throws IOException {
         final OutputStream outputStream = exchange.getResponseBody();
-        final String queryString = exchange.getRequestURI().getQuery();
         int returnCode;
         String response;
-        final Map<String, String> queryParameters;
         try {
-            queryParameters = ServerUtils.getMapQuery(queryString);
-            if (queryParameters.keySet().size() != 2 ||
-                    !queryParameters.containsKey("membership_id") || !queryParameters.containsKey("password")) {
-                throw new ManagerException("Requested pattern is /get_turnstile_event?membership_id=<membership_id>&password=<password>");
-            }
+            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("membership_id", "password"));
             if (!queryParameters.get("password").equals(eventsConfig.getPassword())) {
                 throw new EventsException("Password is incorrect");
             }
             int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
             try {
-                final DataBaseMembership membership = database.getMembership(membershipId);
-                final List<DataBaseTurnstileEvent> events = database.getTurnstileEvents(membershipId);
+                final Membership membership = database.getMembership(membershipId);
+                final List<TurnstileEvent> events = database.getTurnstileEvents(membershipId);
                 final StringBuilder responseBuilder = new StringBuilder();
                 responseBuilder.append("Info for membership with id = ").append(membership.getId()).append(System.lineSeparator());
-                responseBuilder.append("Created at ").append(membership.getAddedTime()).append(System.lineSeparator());
-                for (final DataBaseTurnstileEvent event : events) {
-                    responseBuilder.append(event.getEventId()).append(") time: ").append(event.getAddedTime()).append(", event ").append(event.getEvent()).append(System.lineSeparator());
+                responseBuilder.append("Created at ").append(membership.getAddedTimeInSeconds()).append(System.lineSeparator());
+                for (final TurnstileEvent event : events) {
+                    responseBuilder.append(event.getEventId()).append(")")
+                            .append(" time: ").append(event.getAddedTimeInSeconds()).append(",")
+                            .append(" event ").append(event.getEvent()).append(System.lineSeparator());
                 }
                 response = responseBuilder.toString();
             } catch (final Exception e) {

@@ -2,20 +2,20 @@ package report;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import manager.ManagerException;
 import server.ServerConfig;
 import server.ServerUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
-public class ReportAddMembership implements HttpHandler {
+public class AddMembership implements HttpHandler {
     private final ServerConfig reportConfig;
     private final ReportLocalStorage reportLocalStorage;
 
-    public ReportAddMembership(final ServerConfig reportConfig, final ReportLocalStorage reportLocalStorage) {
+    public AddMembership(final ServerConfig reportConfig, final ReportLocalStorage reportLocalStorage) {
         this.reportConfig = reportConfig;
         this.reportLocalStorage = reportLocalStorage;
     }
@@ -23,22 +23,16 @@ public class ReportAddMembership implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         final OutputStream outputStream = exchange.getResponseBody();
-        final String queryString = exchange.getRequestURI().getQuery();
         int returnCode;
         String response;
-        final Map<String, String> queryParameters;
         try {
-            queryParameters = ServerUtils.getMapQuery(queryString);
-            if (queryParameters.keySet().size() != 3 || !queryParameters.containsKey("password") ||
-                    !queryParameters.containsKey("membership_id") || !queryParameters.containsKey("name")) {
-                throw new ManagerException("Requested pattern is /add_membership?password=<password>&membership_id=<membership_id>&name=<name>");
-            }
+            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("password", "membership_id", "membership_name"));
             final String password = queryParameters.get("password");
             if (!password.equals(reportConfig.getPassword())) {
                 throw new ReportException("Password is incorrect");
             }
             final int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
-            final String name = queryParameters.get("name");
+            final String name = queryParameters.get("membership_name");
             reportLocalStorage.addMembership(membershipId, name);
             response = "ok";
             returnCode = 200;

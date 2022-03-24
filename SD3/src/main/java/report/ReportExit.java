@@ -2,13 +2,13 @@ package report;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import manager.ManagerException;
 import server.ServerConfig;
 import server.ServerUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 public class ReportExit implements HttpHandler {
@@ -24,16 +24,10 @@ public class ReportExit implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         final OutputStream outputStream = exchange.getResponseBody();
-        final String queryString = exchange.getRequestURI().getQuery();
         int returnCode;
         String response;
-        final Map<String, String> queryParameters;
         try {
-            queryParameters = ServerUtils.getMapQuery(queryString);
-            if (queryParameters.keySet().size() != 3 || !queryParameters.containsKey("password") ||
-                    !queryParameters.containsKey("membership_id") || !queryParameters.containsKey("time_in_seconds")) {
-                throw new ManagerException("Requested pattern is /exit?password=<password>&membership_id=<membership_id>&time_in_seconds=<time_in_seconds>");
-            }
+            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("password", "membership_id", "time_in_seconds"));
             final String password = queryParameters.get("password");
             if (!password.equals(reportConfig.getPassword())) {
                 throw new ReportException("Password is incorrect");

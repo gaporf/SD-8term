@@ -1,11 +1,15 @@
 package server;
 
+import com.sun.net.httpserver.HttpExchange;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class ServerUtils {
@@ -49,4 +53,29 @@ public class ServerUtils {
         }
     }
 
+    public static Map<String, String> getMapQuery(final HttpExchange exchange, final List<String> parameters) {
+        final String queryString = exchange.getRequestURI().getQuery();
+        final StringBuilder patternBuilder = new StringBuilder();
+        for (final String parameter : parameters) {
+            patternBuilder.append(parameter).append("&");
+        }
+        patternBuilder.delete(patternBuilder.length() - 1, patternBuilder.length());
+        final String pattern = patternBuilder.toString();
+        final Map<String, String> queryParameters;
+        try {
+            queryParameters = getMapQuery(queryString);
+            if (queryParameters.keySet().size() != parameters.size()) {
+                throw new ServerUtilsException("Expected pattern is " + pattern);
+            }
+            for (final String parameter : parameters) {
+                if (!queryParameters.containsKey(parameter)) {
+                    throw new ServerUtilsException("Expected pattern is " + pattern);
+                }
+            }
+
+            return queryParameters;
+        } catch (final Exception e) {
+            throw new ServerUtilsException("Can't handle: " + e.getMessage(), e);
+        }
+    }
 }

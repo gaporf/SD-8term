@@ -17,9 +17,9 @@ public class Main {
             System.err.println("Can't create server: " + e.getMessage());
             return;
         }
-        httpServer.createContext("/give_membership", new ManagerGiveMembership(eventsConfig));
-        httpServer.createContext("/renew_membership", new ManagerRenewMembership(eventsConfig));
-        httpServer.createContext("/membership_info", new ManagerMembershipInfo(eventsConfig));
+        httpServer.createContext("/give_membership", new GiveMembership(eventsConfig));
+        httpServer.createContext("/renew_membership", new RenewMembership(eventsConfig));
+        httpServer.createContext("/membership_info", new MembershipInfo(eventsConfig));
         httpServer.setExecutor(null);
         httpServer.start();
     }

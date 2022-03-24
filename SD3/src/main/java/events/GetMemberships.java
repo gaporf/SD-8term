@@ -2,10 +2,8 @@ package events;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import database.DataBaseMembership;
-import database.DataBaseMembershipEvent;
-import database.SqlDataBase;
-import manager.ManagerException;
+import database.Database;
+import database.Membership;
 import server.ServerConfig;
 import server.ServerUtils;
 
@@ -15,37 +13,34 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
-public class EventsGetMemberships implements HttpHandler {
+public class GetMemberships implements HttpHandler {
     private final ServerConfig eventsConfig;
-    private final SqlDataBase database;
+    private final Database database;
 
-    public EventsGetMemberships(final ServerConfig eventsConfig, final SqlDataBase database) {
+    public GetMemberships(final ServerConfig eventsConfig, final Database database) {
         this.eventsConfig = eventsConfig;
         this.database = database;
     }
 
 
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
+    public void handle(final HttpExchange exchange) throws IOException {
         final OutputStream outputStream = exchange.getResponseBody();
-        final String queryString = exchange.getRequestURI().getQuery();
         int returnCode;
         String response;
-        final Map<String, String> queryParameters;
         try {
-            queryParameters = ServerUtils.getMapQuery(queryString);
-            if (queryParameters.keySet().size() != 1 || !queryParameters.containsKey("password")) {
-                throw new ManagerException("Requested pattern is /get_memberships?password=<password>");
-            }
+            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("password"));
             if (!eventsConfig.getPassword().equals(queryParameters.get("password"))) {
                 throw new EventsException("Password is incorrect");
             }
             try {
-                final List<DataBaseMembership> memberships = database.getMemberships();
+                final List<Membership> memberships = database.getMemberships();
                 final StringBuilder responseBuilder = new StringBuilder();
                 responseBuilder.append("Info for memberships").append(System.lineSeparator());
-                for (final DataBaseMembership membership : memberships) {
-                    responseBuilder.append("Membership with id = ").append(membership.getId()).append(" with name ").append(membership.getName()).append(" created at ").append(membership.getAddedTime()).append(System.lineSeparator());
+                for (final Membership membership : memberships) {
+                    responseBuilder.append("Membership: id = ").append(membership.getId()).append(",")
+                            .append(" name ").append(membership.getName()).append(",")
+                            .append("created at ").append(membership.getAddedTimeInSeconds()).append(System.lineSeparator());
                 }
                 response = responseBuilder.toString();
             } catch (final Exception e) {

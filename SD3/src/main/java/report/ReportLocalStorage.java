@@ -13,7 +13,9 @@ public class ReportLocalStorage {
     public ReportLocalStorage(final ServerConfig eventsConfig) {
         final String membershipsResult;
         try {
-            membershipsResult = ServerUtils.readAsText("http://localhost:" + eventsConfig.getPort() + "/get_memberships?password=" + eventsConfig.getPassword());
+            membershipsResult = ServerUtils.readAsText("http://localhost:" + eventsConfig.getPort() + "/" +
+                    "get_memberships" + "?" +
+                    "password=" + eventsConfig.getPassword());
         } catch (final Exception e) {
             throw new ReportException("Can't connect to events store: " + e.getMessage(), e);
         }
@@ -31,7 +33,10 @@ public class ReportLocalStorage {
             membershipInfoMap.put(membershipId, new ReportMembershipInfo());
             final String turnstileEventsResult;
             try {
-                turnstileEventsResult = ServerUtils.readAsText("http://localhost:" + eventsConfig.getPort() + "/get_turnstile_events?password=" + eventsConfig.getPassword() + "&membership_id=" + membershipId);
+                turnstileEventsResult = ServerUtils.readAsText("http://localhost:" + eventsConfig.getPort() + "/" +
+                        "get_turnstile_events" + "?" +
+                        "password=" + eventsConfig.getPassword() + "&" +
+                        "membership_id=" + membershipId);
             } catch (final Exception e) {
                 throw new ReportException("Can't connect to events store: " + e.getMessage(), e);
             }
