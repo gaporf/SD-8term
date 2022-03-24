@@ -2,7 +2,6 @@ package report;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import manager.ManagerException;
 import server.ServerUtils;
 
 import java.io.IOException;

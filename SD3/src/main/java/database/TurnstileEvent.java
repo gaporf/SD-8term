@@ -30,4 +30,17 @@ public class TurnstileEvent {
     public long getAddedTimeInSeconds() {
         return addedTimeInSeconds;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof TurnstileEvent)) {
+            return false;
+        } else if (this == obj) {
+            return true;
+        } else {
+            final TurnstileEvent another = (TurnstileEvent) obj;
+            return this.eventId == another.eventId && this.membershipId == another.membershipId
+                    && this.event == another.event && this.addedTimeInSeconds == another.addedTimeInSeconds;
+        }
+    }
 }

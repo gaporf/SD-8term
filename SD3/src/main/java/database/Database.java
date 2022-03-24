@@ -123,9 +123,25 @@ public class Database {
             updateSQL("insert into MembershipEvents " +
                     "  (eventId, MembershipId, validTill, addedTime) values " +
                     "  (" + membershipEvent.getEventId() +
-                    ",  " + membershipEvent.getMembershipId() +
-                    ",  " + membershipEvent.getValidTillInSeconds() +
-                    ",  " + membershipEvent.getAddedTimeInSeconds() + ")");
+                    " , " + membershipEvent.getMembershipId() +
+                    " , " + membershipEvent.getValidTillInSeconds() +
+                    " , " + membershipEvent.getAddedTimeInSeconds() + ")");
+        }
+    }
+
+    public void addTurnstileEvent(final TurnstileEvent turnstileEvent) {
+        if (!containsMembership(turnstileEvent.getMembershipId())) {
+            throw new DatabaseException("Can't find membership with id = " + turnstileEvent.getMembershipId());
+        } else if (containsTurnstileEvent(turnstileEvent)) {
+            throw new DatabaseException("Turnstile event " + turnstileEvent.getEventId() +
+                    " for membership " + turnstileEvent.getMembershipId() + " is already added");
+        } else {
+            updateSQL("insert into TurnstileEvents " +
+                    "  (eventId, membershipId, event, addedTime) values " +
+                    "  (" + turnstileEvent.getEventId() +
+                    " , " + turnstileEvent.getMembershipId() +
+                    " ,'" + turnstileEvent.getEvent().toString() + "'" +
+                    " , " + turnstileEvent.getAddedTimeInSeconds() + ")");
         }
     }
 
@@ -133,7 +149,9 @@ public class Database {
         if (!containsMembership(membershipId)) {
             throw new DatabaseException("Can't find membership with id = " + membershipId);
         } else {
-            return querySQL("select * from Memberships where Memberships.id = " + membershipId, rs -> {
+            return querySQL("select * from Memberships" +
+                    " where Memberships.id = " + membershipId +
+                    " order by Memberships.id", rs -> {
                 try {
                     return new Membership(rs.getInt("id"), rs.getString("name"), rs.getInt("addedTime"));
                 } catch (final SQLException e) {
@@ -161,7 +179,9 @@ public class Database {
         if (!containsMembership(membershipId)) {
             throw new DatabaseException("Can't find membership with id = " + membershipId);
         } else {
-            return querySQL("select * from MembershipEvents where MembershipEvents.membershipId = " + membershipId, rs -> {
+            return querySQL("select * from MembershipEvents" +
+                    " where MembershipEvents.membershipId = " + membershipId +
+                    " order by MembershipEvents.membershipId, MembershipEvents.eventId", rs -> {
                 final List<MembershipEvent> events = new ArrayList<>();
                 try {
                     while (rs.next()) {
@@ -178,27 +198,13 @@ public class Database {
         }
     }
 
-    public void addTurnstileEvent(final TurnstileEvent turnstileEvent) {
-        if (!containsMembership(turnstileEvent.getMembershipId())) {
-            throw new DatabaseException("Can't find membership with id = " + turnstileEvent.getMembershipId());
-        } else if (containsTurnstileEvent(turnstileEvent)) {
-            throw new DatabaseException("Turnstile event " + turnstileEvent.getEventId() +
-                    " for membership " + turnstileEvent.getMembershipId() + " is already added");
-        } else {
-            updateSQL("insert into TurnstileEvents " +
-                    "  (eventId, membershipId, event, addedTime) values " +
-                    "  (" + turnstileEvent.getEventId() +
-                    " , " + turnstileEvent.getMembershipId() +
-                    " ,'" + turnstileEvent.getEvent().toString() + "'" +
-                    " , " + turnstileEvent.getAddedTimeInSeconds() + ")");
-        }
-    }
-
     public List<TurnstileEvent> getTurnstileEvents(final int membershipId) {
         if (!containsMembership(membershipId)) {
             throw new DatabaseException("Can't find membership with id = " + membershipId);
         } else {
-            return querySQL("select * from TurnstileEvents where TurnstileEvents.membershipId = " + membershipId, rs -> {
+            return querySQL("select * from TurnstileEvents" +
+                    " where TurnstileEvents.membershipId = " + membershipId +
+                    " order by TurnstileEvents.membershipId, TurnstileEvents.eventId", rs -> {
                 final List<TurnstileEvent> events = new ArrayList<>();
                 try {
                     while (rs.next()) {

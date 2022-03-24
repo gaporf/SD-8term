@@ -30,4 +30,17 @@ public class MembershipEvent {
     public long getAddedTimeInSeconds() {
         return addedTimeInSeconds;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof MembershipEvent)) {
+            return false;
+        } else if (this == obj) {
+            return true;
+        } else {
+            final MembershipEvent another = (MembershipEvent) obj;
+            return this.eventId == another.eventId && this.membershipId == another.membershipId &&
+                    this.validTillInSeconds == another.validTillInSeconds && this.addedTimeInSeconds == another.addedTimeInSeconds;
+        }
+    }
 }

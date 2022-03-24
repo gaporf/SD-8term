@@ -5,7 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerUtils {
-    public static Map<String, String> getMapQuery(final String queryString) {
+    private static Map<String, String> getMapQuery(final String queryString) {
         final Map<String, String> result = new HashMap<>();
         final String[] queries = queryString.split("&");
         for (final String query : queries) {

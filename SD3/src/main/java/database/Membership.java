@@ -24,4 +24,16 @@ public class Membership {
     public long getAddedTimeInSeconds() {
         return addedTimeInSeconds;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Membership)) {
+            return false;
+        } else if (this == obj) {
+            return true;
+        } else {
+            final Membership another = (Membership) obj;
+            return this.id == another.id && this.name.equals(another.name) && this.addedTimeInSeconds == another.addedTimeInSeconds;
+        }
+    }
 }
