@@ -1,6 +1,5 @@
 package events;
 
-import clock.SystemClock;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import database.TurnstileEvent;
@@ -42,12 +41,12 @@ public class NewTurnstileEvent implements HttpHandler {
             final String event = queryParameters.get("event");
             try {
                 final TurnstileEvent turnstileEvent = new TurnstileEvent(eventId, membershipId,
-                        TypeOfTurnstileEvent.valueOf(event.toUpperCase()), new SystemClock().now().getEpochSecond());
+                        TypeOfTurnstileEvent.valueOf(event.toUpperCase()), eventsConfig.getClock().now().getEpochSecond());
                 database.addTurnstileEvent(turnstileEvent);
                 sendDataToReportServer(turnstileEvent);
                 response = "Turnstile event: id = " + eventId + " for membership: id = " + membershipId + " is added";
             } catch (final Exception e) {
-                response = e.getMessage();
+                response = "Can't add turnstile event: " + e.getMessage();
             }
             returnCode = 200;
         } catch (final Exception e) {
@@ -65,8 +64,8 @@ public class NewTurnstileEvent implements HttpHandler {
                 "password=" + reportConfig.getPassword() + "&" +
                 "membership_id=" + turnstileEvent.getMembershipId() + "&" +
                 "time_in_seconds=" + turnstileEvent.getAddedTimeInSeconds());
-        if (!result.equals("ok")) {
-            throw new EventsException("Can't send data to report server");
+        if (!result.equals("ok" + System.lineSeparator())) {
+            throw new EventsException("Can't send data to report server: " + result);
         }
     }
 }

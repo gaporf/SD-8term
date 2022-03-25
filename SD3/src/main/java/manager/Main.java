@@ -1,5 +1,6 @@
 package manager;
 
+import clock.SystemClock;
 import com.sun.net.httpserver.HttpServer;
 import server.ServerConfig;
 
@@ -7,8 +8,8 @@ import java.net.InetSocketAddress;
 
 public class Main {
     public static void main(final String[] args) {
-        final ServerConfig managerConfig = new ServerConfig("C:\\Users\\gapor\\ITMO\\SD_2term\\SD3\\src\\main\\resources\\server_configs\\manager.conf");
-        final ServerConfig eventsConfig = new ServerConfig("C:\\Users\\gapor\\ITMO\\SD_2term\\SD3\\src\\main\\resources\\server_configs\\events.conf");
+        final ServerConfig managerConfig = new ServerConfig("C:\\Users\\gapor\\ITMO\\SD_2term\\SD3\\src\\main\\resources\\server_configs\\manager.conf", new SystemClock());
+        final ServerConfig eventsConfig = new ServerConfig("C:\\Users\\gapor\\ITMO\\SD_2term\\SD3\\src\\main\\resources\\server_configs\\events.conf", new SystemClock());
         final HttpServer httpServer;
 
         try {

@@ -115,10 +115,10 @@ public class Database {
 
     public void addMembershipEvent(final MembershipEvent membershipEvent) {
         if (!containsMembership(membershipEvent.getMembershipId())) {
-            throw new DatabaseException("Can't find membership with id = " + membershipEvent.getMembershipId());
+            throw new DatabaseException("Can't find membership: id = " + membershipEvent.getMembershipId());
         } else if (containsMembershipEvent(membershipEvent)) {
-            throw new DatabaseException("Membership event " + membershipEvent.getEventId() +
-                    " for membership " + membershipEvent.getMembershipId() + " is already added");
+            throw new DatabaseException("Membership event id = " + membershipEvent.getEventId() +
+                    " for membership id = " + membershipEvent.getMembershipId() + " is already added");
         } else {
             updateSQL("insert into MembershipEvents " +
                     "  (eventId, MembershipId, validTill, addedTime) values " +
@@ -131,10 +131,10 @@ public class Database {
 
     public void addTurnstileEvent(final TurnstileEvent turnstileEvent) {
         if (!containsMembership(turnstileEvent.getMembershipId())) {
-            throw new DatabaseException("Can't find membership with id = " + turnstileEvent.getMembershipId());
+            throw new DatabaseException("Can't find membership: id = " + turnstileEvent.getMembershipId());
         } else if (containsTurnstileEvent(turnstileEvent)) {
-            throw new DatabaseException("Turnstile event " + turnstileEvent.getEventId() +
-                    " for membership " + turnstileEvent.getMembershipId() + " is already added");
+            throw new DatabaseException("Turnstile event id = " + turnstileEvent.getEventId() +
+                    " for membership id = " + turnstileEvent.getMembershipId() + " is already added");
         } else {
             updateSQL("insert into TurnstileEvents " +
                     "  (eventId, membershipId, event, addedTime) values " +
@@ -147,7 +147,7 @@ public class Database {
 
     public Membership getMembership(final int membershipId) {
         if (!containsMembership(membershipId)) {
-            throw new DatabaseException("Can't find membership with id = " + membershipId);
+            throw new DatabaseException("Can't find membership: id = " + membershipId);
         } else {
             return querySQL("select * from Memberships" +
                     " where Memberships.id = " + membershipId +

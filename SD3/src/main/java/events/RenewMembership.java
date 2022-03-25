@@ -1,6 +1,5 @@
 package events;
 
-import clock.SystemClock;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import database.Database;
@@ -37,8 +36,8 @@ public class RenewMembership implements HttpHandler {
             final int eventId = ServerUtils.parseInt(queryParameters.get("event_id"));
             final int valid_till = ServerUtils.parseInt(queryParameters.get("valid_till"));
             try {
-                database.addMembershipEvent(new MembershipEvent(eventId, membershipId, valid_till, new SystemClock().now().getEpochSecond()));
-                response = "MembershipEvent for membership with id = " + membershipId + " and with event id = " + eventId + " was added";
+                database.addMembershipEvent(new MembershipEvent(eventId, membershipId, valid_till, eventsConfig.getClock().now().getEpochSecond()));
+                response = "MembershipEvent for membership id = " + membershipId + " and event id = " + eventId + " is added";
             } catch (final Exception e) {
                 response = "Can't renew membership: " + e.getMessage();
             }

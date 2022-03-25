@@ -39,7 +39,7 @@ public class GetTurnstileEvents implements HttpHandler {
                 final Membership membership = database.getMembership(membershipId);
                 final List<TurnstileEvent> events = database.getTurnstileEvents(membershipId);
                 final StringBuilder responseBuilder = new StringBuilder();
-                responseBuilder.append("Info for membership with id = ").append(membership.getId()).append(System.lineSeparator());
+                responseBuilder.append("Info for membership id = ").append(membership.getId()).append(System.lineSeparator());
                 responseBuilder.append("Created at ").append(membership.getAddedTimeInSeconds()).append(System.lineSeparator());
                 for (final TurnstileEvent event : events) {
                     responseBuilder.append(event.getEventId()).append(")")

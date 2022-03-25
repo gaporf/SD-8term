@@ -29,7 +29,7 @@ public class GetMembershipEvents implements HttpHandler {
         int returnCode;
         String response;
         try {
-            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("membership_id, password"));
+            final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("password", "membership_id"));
             if (!eventsConfig.getPassword().equals(queryParameters.get("password"))) {
                 throw new EventsException("Password is incorrect");
             }
@@ -38,7 +38,7 @@ public class GetMembershipEvents implements HttpHandler {
                 final Membership membership = database.getMembership(membershipId);
                 final List<MembershipEvent> events = database.getMembershipsEvents(membershipId);
                 final StringBuilder responseBuilder = new StringBuilder();
-                responseBuilder.append("Info for membership with id = ").append(membership.getId()).append(System.lineSeparator());
+                responseBuilder.append("Info for membership id = ").append(membership.getId()).append(System.lineSeparator());
                 responseBuilder.append("Created at ").append(membership.getAddedTimeInSeconds()).append(System.lineSeparator());
                 for (final MembershipEvent event : events) {
                     responseBuilder.append(event.getEventId()).append(")")

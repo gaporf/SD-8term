@@ -1,5 +1,7 @@
 package server;
 
+import clock.Clock;
+
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -9,10 +11,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ServerConfig {
+    private final Clock clock;
     private final int port;
     private final String password;
 
-    public ServerConfig(final String path) {
+    public ServerConfig(final String path, final Clock clock) {
+        this.clock = clock;
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(Path.of(path).toFile())))) {
             final Map<String, String> parameters = new HashMap<>();
             for (final String line: bufferedReader.lines().collect(Collectors.toList())) {
@@ -52,11 +56,21 @@ public class ServerConfig {
         }
     }
 
+    public ServerConfig(final int port, final String password, final Clock clock) {
+        this.port = port;
+        this.password = password;
+        this.clock = clock;
+    }
+
     public int getPort() {
         return port;
     }
 
     public String getPassword() {
         return password;
+    }
+
+    public Clock getClock() {
+        return clock;
     }
 }

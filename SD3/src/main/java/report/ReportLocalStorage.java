@@ -10,6 +10,9 @@ public class ReportLocalStorage {
     private final Map<Integer, String> membershipNames = new HashMap<>();
     private final Map<Integer, ReportMembershipInfo> membershipInfoMap = new HashMap<>();
 
+    public ReportLocalStorage() {
+    }
+
     public ReportLocalStorage(final ServerConfig eventsConfig) {
         final String membershipsResult;
         try {

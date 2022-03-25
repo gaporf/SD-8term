@@ -22,7 +22,6 @@ public class GetMemberships implements HttpHandler {
         this.database = database;
     }
 
-
     @Override
     public void handle(final HttpExchange exchange) throws IOException {
         final OutputStream outputStream = exchange.getResponseBody();
@@ -39,8 +38,8 @@ public class GetMemberships implements HttpHandler {
                 responseBuilder.append("Info for memberships").append(System.lineSeparator());
                 for (final Membership membership : memberships) {
                     responseBuilder.append("Membership: id = ").append(membership.getId()).append(",")
-                            .append(" name ").append(membership.getName()).append(",")
-                            .append("created at ").append(membership.getAddedTimeInSeconds()).append(System.lineSeparator());
+                            .append(" name = ").append(membership.getName()).append(",")
+                            .append(" created at ").append(membership.getAddedTimeInSeconds()).append(System.lineSeparator());
                 }
                 response = responseBuilder.toString();
             } catch (final Exception e) {
