@@ -25,7 +25,11 @@ public class ReportStatistics implements HttpHandler {
         try {
             final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("membership_id"));
             int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
-            response = reportLocalStorage.getStatistics(membershipId);
+            try {
+                response = reportLocalStorage.getStatistics(membershipId);
+            } catch (final Exception e) {
+                response = "Can't get statistics: " + e.getMessage();
+            }
             returnCode = 200;
         } catch (final Exception e) {
             response = e.getMessage();

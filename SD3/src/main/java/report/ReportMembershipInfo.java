@@ -2,6 +2,7 @@ package report;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ReportMembershipInfo {
     private final Map<Integer, Integer> dayStatistics = new HashMap<>();
@@ -28,7 +29,7 @@ public class ReportMembershipInfo {
 
     public String getStatistics() {
         final StringBuilder result = new StringBuilder();
-        for (final int day : dayStatistics.keySet()) {
+        for (final int day : dayStatistics.keySet().stream().sorted().collect(Collectors.toList())) {
             result.append("On day ").append(day).append(" member visited ").append(dayStatistics.get(day)).append(" times").append(System.lineSeparator());
         }
         result.append("Visited ").append(visitedTimes).append(" times, summary time: ").append(timeInGym);

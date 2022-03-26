@@ -10,7 +10,7 @@ public class TurnstileUtils {
                 "password=" + eventsConfig.getPassword() + "&" +
                 "membership_id=" + membershipId);
         final String[] turnstileEventsLines = turnstileEvents.split(System.lineSeparator());
-        if (!turnstileEventsLines[0].equals("Info for membership with id = " + membershipId)) {
+        if (!turnstileEventsLines[0].equals("Info for membership id = " + membershipId)) {
             throw new TurnstileException(turnstileEvents);
         } else {
             return turnstileEventsLines.length - 1;
@@ -23,8 +23,8 @@ public class TurnstileUtils {
                 "password=" + eventsConfig.getPassword() + "&" +
                 "membership_id=" + membershipId + "&" +
                 "event_id=" + eventId + "&" +
-                "turnstile_event=" + event);
-        if (!result.equals("Turnstile event: id = " + eventId + " for membership: id = " + membershipId + " is added")) {
+                "event=" + event);
+        if (!result.equals("Turnstile event: id = " + eventId + " for membership: id = " + membershipId + " is added" + System.lineSeparator())) {
             throw new TurnstileException("Can't send data to events server");
         }
     }

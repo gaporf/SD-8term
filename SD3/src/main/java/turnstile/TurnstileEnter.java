@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 public class TurnstileEnter implements HttpHandler {
+    private final ServerConfig turnstileConfig;
     private final ServerConfig eventsConfig;
 
-    public TurnstileEnter(final ServerConfig eventsConfig) {
+    public TurnstileEnter(final ServerConfig turnstileConfig, final ServerConfig eventsConfig) {
+        this.turnstileConfig = turnstileConfig;
         this.eventsConfig = eventsConfig;
     }
 
@@ -36,7 +38,7 @@ public class TurnstileEnter implements HttpHandler {
                     throw new TurnstileException("The membership is expired");
                 }
             } catch (final Exception e) {
-                response = e.getMessage();
+                response = "Can't enter: " + e.getMessage();
             }
             returnCode = 200;
         } catch (final Exception e) {
@@ -54,13 +56,13 @@ public class TurnstileEnter implements HttpHandler {
                 "password=" + eventsConfig.getPassword() + "&" +
                 "membership_id=" + membershipId);
         final String[] membershipEventsLines = membershipEvents.split(System.lineSeparator());
-        if (!membershipEventsLines[0].equals("Info for membership with id = " + membershipId)) {
+        if (!membershipEventsLines[0].equals("Info for membership id = " + membershipId)) {
             throw new TurnstileException(membershipEvents);
         } else if (membershipEventsLines.length == 2) {
             throw new TurnstileException("The membership is not activated");
         } else {
             final int validTill = Integer.parseInt(membershipEventsLines[membershipEventsLines.length - 1].split(", ")[1].split(" ")[2]);
-            final long currentTime = new SystemClock().now().getEpochSecond();
+            final long currentTime = turnstileConfig.getClock().now().getEpochSecond();
             return validTill > currentTime;
         }
     }

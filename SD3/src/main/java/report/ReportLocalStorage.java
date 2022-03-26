@@ -27,8 +27,8 @@ public class ReportLocalStorage {
             throw new ReportException("Can't properly connect to event store");
         }
         for (int i = 1; i < membershipResultLines.length; i++) {
-            final int id = Integer.parseInt(membershipResultLines[i].split("= ")[1].split(" ")[0]);
-            final String name = membershipResultLines[i].split("name ")[1].split(" ")[0];
+            final int id = Integer.parseInt(membershipResultLines[i].split("= ")[1].split(",")[0]);
+            final String name = membershipResultLines[i].split("name = ")[1].split(",")[0];
             membershipNames.put(id, name);
         }
 
@@ -44,7 +44,7 @@ public class ReportLocalStorage {
                 throw new ReportException("Can't connect to events store: " + e.getMessage(), e);
             }
             final String[] turnstileEventsResultLines = turnstileEventsResult.split(System.lineSeparator());
-            if (!turnstileEventsResultLines[0].equals("Info for membership with id = " + membershipId)) {
+            if (!turnstileEventsResultLines[0].equals("Info for membership id = " + membershipId)) {
                 throw new ReportException("Can't properly connect to event store");
             }
             for (int i = 2; i < turnstileEventsResultLines.length; i++) {
@@ -61,7 +61,7 @@ public class ReportLocalStorage {
 
     public String getStatistics(final int membershipId) {
         if (!membershipNames.containsKey(membershipId)) {
-            return "Membership is not found";
+            throw new ReportException("Membership id = " + membershipId + " is not found");
         }
         final StringBuilder responseBuilder = new StringBuilder();
         final ReportMembershipInfo info = membershipInfoMap.get(membershipId);

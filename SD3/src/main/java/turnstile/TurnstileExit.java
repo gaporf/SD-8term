@@ -25,10 +25,14 @@ public class TurnstileExit implements HttpHandler {
         String response;
         try {
             final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("membership_id"));
-            int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
-            final int eventId = TurnstileUtils.getLastEventId(membershipId, eventsConfig);
-            response = "Membership: id = " + membershipId + " exited";
-            TurnstileUtils.sendDataToEventsServer(membershipId, eventId, "exit", eventsConfig);
+            final int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
+            try {
+                final int eventId = TurnstileUtils.getLastEventId(membershipId, eventsConfig);
+                response = "Membership: id = " + membershipId + " exited";
+                TurnstileUtils.sendDataToEventsServer(membershipId, eventId, "exit", eventsConfig);
+            } catch (final Exception e) {
+                response = "Can't exit: " + e.getMessage();
+            }
             returnCode = 200;
         } catch (final Exception e) {
             response = e.getMessage();

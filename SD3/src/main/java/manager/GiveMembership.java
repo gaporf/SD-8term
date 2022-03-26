@@ -27,8 +27,12 @@ public class GiveMembership implements HttpHandler {
             final Map<String, String> queryParameters = ServerUtils.getMapQuery(exchange, List.of("membership_id", "membership_name"));
             final int membershipId = ServerUtils.parseInt(queryParameters.get("membership_id"));
             final String membershipName = queryParameters.get("membership_name");
-            sendDataToEventsServer(membershipId, membershipName);
-            response = "Membership was given for id = " + membershipId;
+            try {
+                sendDataToEventsServer(membershipId, membershipName);
+                response = "Membership is given: id = " + membershipId;
+            } catch (final Exception e) {
+                response = "Can't give membership: " + e.getMessage();
+            }
             returnCode = 200;
         } catch (final Exception e) {
             response = e.getMessage();
@@ -44,7 +48,7 @@ public class GiveMembership implements HttpHandler {
                 "register_membership?password=" + eventsConfig.getPassword() + "&" +
                 "membership_id=" + membershipId + "&" +
                 "membership_name=" + membershipName);
-        if (!result.equals("Membership with id = " + membershipId + " is added")) {
+        if (!result.equals("Membership: id = " + membershipId + " is added" + System.lineSeparator())) {
             throw new ManagerException(result);
         }
     }

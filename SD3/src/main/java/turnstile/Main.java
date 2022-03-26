@@ -18,7 +18,7 @@ public class Main {
             System.err.println("Can't create server: " + e.getMessage());
             return;
         }
-        httpServer.createContext("/enter", new TurnstileEnter(eventsConfig));
+        httpServer.createContext("/enter", new TurnstileEnter(turnstileConfig, eventsConfig));
         httpServer.createContext("/exit", new TurnstileExit(eventsConfig));
         httpServer.setExecutor(null);
         httpServer.start();
